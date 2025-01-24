@@ -17,9 +17,10 @@ module RegFile#(
    input  [DATA_WIDTH-1:0] rg_wrt_data, // data that supposed to be written into the register file
          
    // Outputs
-   output logic [DATA_WIDTH-1:0] rg_rd_data1,   //content of reg_file[rg_rd_addr1] is loaded into
-   output logic [DATA_WIDTH-1:0] rg_rd_data2    //content of reg_file[rg_rd_addr2] is loaded into
+   output logic [DATA_WIDTH-1:0] rg_rd_data1, //content of reg_file[rg_rd_addr1] is loaded into
+   output logic [DATA_WIDTH-1:0] rg_rd_data2 //content of reg_file[rg_rd_addr2] is loaded into
    );
+
 
 integer 	 i;
 
@@ -30,12 +31,12 @@ begin
     if( rst == 1'b1 )
         for (i = 0; i < NUM_REGS ; i = i + 1)
             register_file [i] <= 0;
-    else if( rst ==1'b0 && rg_wrt_en ==1'b1 ) begin
+    else if( rst ==1'b0 && rg_wrt_en ==1'b1 )
         register_file [ rg_wrt_dest ] <= rg_wrt_data;
-    end
 end
 
 assign rg_rd_data1 = register_file[rg_rd_addr1];
 assign rg_rd_data2 = register_file[rg_rd_addr2];
+
 
 endmodule

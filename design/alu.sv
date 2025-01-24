@@ -45,7 +45,7 @@ module alu#(
             4'b0001:        // OR
                     ALUResult = SrcA | SrcB;
             4'b0010:        // ADD
-                    ALUResult = $signed(SrcA) + $signed(SrcB);
+                    ALUResult = SrcA + SrcB;
             4'b0011:        // XOR
                     ALUResult = SrcA ^ SrcB;
             4'b0100:        // Left Shift
@@ -63,12 +63,12 @@ module alu#(
                     ALUResult = (SrcA != SrcB) ? 1 : 0;
             4'b1100:        // Less Than
                     ALUResult = ($signed(SrcA) < $signed(SrcB)) ? 1 : 0;
-            4'b1101:        // Greater/Equal Than
-                    ALUResult = ($signed(SrcA) >= $signed(SrcB)) ? 1 : 0;
+            4'b1101:        // Greater Than
+                    ALUResult = ($signed(SrcA) > $signed(SrcB)) ? 1 : 0;
             4'b1110:        // Unsigned Less Than
-                    ALUResult = (SrcA < SrcB) ? 1 : 0;
-            4'b1111:        // Unsigned Greater/Equal Than
-                    ALUResult = (SrcA >= SrcB) ? 1 : 0;
+                    ALUResult = ($unsigned(SrcA) < $unsigned(SrcB)) ? 1 : 0;
+            4'b1111:        // Ungsigned Greater Than
+                    ALUResult = ($unsigned(SrcA) > $unsigned(SrcB)) ? 1 : 0;
             4'b1010:        // Always True, for jal
                     ALUResult = 1;
             default:
