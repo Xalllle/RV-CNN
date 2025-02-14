@@ -29,14 +29,15 @@ test_images = test_images.astype('float32') / 255
 # Get the first 2000 data points for train images and 50 data points for test images
 
 # Training Set
-train_images = train_images[:5000]
-test_images = test_images[:1000]
+train_images = train_images[:100]
+test_images = test_images[:50]
 
 # Testing Set
-train_labels = train_labels[:5000]
-test_labels = test_labels[:1000]
+train_labels = train_labels[:100]
+test_labels = test_labels[:50]
 
 print(f"Train Images Size: {len(train_images)} and Test Images Size: {len(test_images)}")
+
 '''
 # Display the first 10 images with labels
 plt.figure(figsize=(10, 4))
@@ -52,30 +53,21 @@ plt.show()
 ############################################################ MAIN ML CODE ############################################################
 # Define the model as a function
 model = tf.keras.Sequential([
-  ## Don't change this
-  #tf.keras.layers.Flatten(input_shape=(28, 28, 1)),
-  tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)), 
-  tf.keras.layers.MaxPooling2D((2, 2)),  # Add MaxPooling2D layer here
-  tf.keras.layers.Flatten(),
-  tf.keras.layers.BatchNormalization(),
-
-  # CHANGE HERE (number of neurons, number of layers, non linear activation function)
-  tf.keras.layers.Dense(12, activation='leaky_relu'),
-  #tf.keras.layers.Dense(20, activation='relu'),
-  tf.keras.layers.BatchNormalization(),
-  tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(12, activation='softmax'),
-  #tf.keras.layers.Dropout(0.3),
-
-  # Don't change this
-  tf.keras.layers.Dense(10)
-]) 
+    #tf.keras.layers.Conv2D(16, (3,3), activation='relu', padding='same', input_shape=(28,28,1)), 
+    #tf.keras.layers.MaxPooling2D((2,2)),  
+    tf.keras.layers.DepthwiseConv2D((3,3), activation='relu', padding='same',input_shape=(28,28,1)),  # Efficient conv layer
+    #tf.keras.layers.MaxPooling2D((2,2)),  
+    tf.keras.layers.Flatten(),  
+    tf.keras.layers.Dense(24, activation='relu'),
+    #tf.keras.layers.Dropout(0.2),  
+    tf.keras.layers.Dense(10, activation ='softmax')  # Output layer for 10 digits
+])
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 #optimizer is for backpropagation, loss is how we figure out how far off we are from the proper labels
 
 #Train the model
-history = model.fit(train_images, train_labels, epochs=10, batch_size=32, validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, epochs=5, batch_size=10, validation_data=(test_images, test_labels))
 
 ############################################################ END ML CODE ############################################################
 
