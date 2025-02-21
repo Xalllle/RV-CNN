@@ -26,12 +26,13 @@ class neuron():
     '''
     def __init__(self, stage, description, info):
         self.stage = stage
-        self.bias = random.randrange(-100,101)/100 #generates a random bias
         self.type = description
         if self.type == "Kernel":
-            self.weight = random_3x3_matrix() #generates a random weight
+            self.bias = 0
+            self.weight = random_3x3_matrix(47) #generates a random weight, based on HE initialization calculated by AI
             self.info = kernel(info)
         elif self.type == "Output":
+            self.bias = 0
             self.info = info #The input size of the neuron, will be the length of the flattened hidden layer
             self.weight = [round(random.uniform(-1, 1),2) for _ in range(info)]
     def operate(self, input_image):
@@ -39,13 +40,18 @@ class neuron():
         Convolves the input image with the kernel selected at the object instantiation, then applies relu on it.
         '''
         if self.type == "Kernel":
-            self.feature_map = normalize(sigmoid(convolve(input_image, self.weight, self.bias, self.info)))
+            self.feature_map = convolve(input_image, self.weight, self.bias, self.info)
         elif self.type == "Output":
             self.activation = weighted_sum_flat(input_image, self.weight) + self.bias
-    
+    def activate(self, function):
+        if function == "relu":
+            self.feature_map_activated = relu(self.feature_map)
+        elif function == "sigmoid":
+            self.activated = sigmoid(self.activation)
+
         
         
-def random_3x3_matrix():
+def random_3x3_matrix(max_min):
     '''
     Initially used, created issues with empty matrices
     '''
@@ -53,7 +59,7 @@ def random_3x3_matrix():
     for _ in range(3):
         row = []
         for _ in range(3):
-            row.append(random.randrange(-100, 101) / 100)  # Corrected range
+            row.append(random.randrange(-max_min, max_min+1) / 100)  # Corrected range
         matrix.append(row)
     return matrix
 
@@ -189,13 +195,16 @@ def max_pooling(feature_map):
 
 
 def sigmoid(x):
-  result = []
-  for row in x:
-    new_row = []
-    for val in row:
-      new_row.append(1 / (1 + math.exp(-val)))
-    result.append(new_row)
-  return result
+    if type(x) == list:
+        result = []
+        for row in x:
+            new_row = []
+            for val in row:
+                new_row.append(round((1 / (1 + math.exp(-val))),2))
+                result.append(new_row)
+        return result
+    elif type(x) == float:
+        return round((1 / (1 + math.exp(-x))),2)
 
 if __name__== "__main__":
     start_time = time.time()
@@ -230,8 +239,8 @@ if __name__== "__main__":
     Initialize output layer neurons
     '''
     output_layer = []
-    output_layer.append(neuron(3, "Output", 3025)) #Detects 0
-    output_layer.append(neuron(3, "Output", 3025)) #Detects 1
+    output_layer.append(neuron(3, "Output", 14400)) #Detects 0
+    output_layer.append(neuron(3, "Output", 14400)) #Detects 1
     
     '''
     First Layer: Convolution
@@ -240,17 +249,19 @@ if __name__== "__main__":
     x = 0
     for n in layer_1:
         n.operate(input_image)
-        layer_1_feature_maps.append(n.feature_map)
+        n.activate("relu")
+        layer_1_feature_maps.append(n.feature_map_activated)
         
     '''
-    Second Layer: Pooling Layer
+    Second Layer: Pooling Layer (to be activated, change the flattened_output range for the output layer neurons)
     '''
-    
+    '''
     i = 0
     while i < len(layer_1):
         layer_1[i].feature_map = max_pooling(layer_1[i].feature_map)
         i += 1
-         
+    '''
+    
     '''
     Third Layer: Convolution
     '''
@@ -258,16 +269,18 @@ if __name__== "__main__":
     for n in layer_1:
         for m in layer_2:
             m.operate(n.feature_map)
-            layer_2_feature_maps.append(m.feature_map)
+            m.activate("relu")
+            layer_2_feature_maps.append(m.feature_map_activated)
             x += 1
             
     '''
-    Fourth Layer: Fully Connected (flattening occurs here as well)
+    Fourth Layer: Fully Connected (flattening occurs here)
     '''
     flattened_output = flatten(layer_2_feature_maps)
     for n in output_layer:
         n.operate(flattened_output)
-        print(n.activation)
+        n.activate("sigmoid")
+        print(n.activated)
 
 
 
@@ -285,7 +298,7 @@ if __name__== "__main__":
     '''
     i = 0
     while i < len(layer_2_feature_maps):        
-        picture_generator.matrix_to_bw_image(layer_2_feature_maps[i], output_file=str(i) + ".png", scale_factor=10)
+        picture_generator.matrix_to_bw_image(normalize(layer_2_feature_maps[i]), output_file=str(i) + ".png", scale_factor=10)
         i += 1
     
 
