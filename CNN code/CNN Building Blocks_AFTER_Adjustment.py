@@ -10,127 +10,17 @@ import random
 import math
 import mnist_data_interpreter
 import time
-
+from file_loader import read_file
 
 
 class neuron():
-    '''
-    Neurons should be initialized in the main program block
-    Stage => The stage that the neuron is in
-    Bias => The bias factor when calculating the activation function (randomized)
-    Weight => The factor that the parts of the filter in multiplied by (same size as filter) (randomized)
-    Activation => Function that determines output of neuron (calculated with weight and bias)
-    Description => Whether the neuron is a filter (kernel), pooling layer, or fully connected neuron.
-    Info => Information used by the function. For kernel it should be type of filer, for pooling it can 
-    be left blank, and for fully connected it is left blank.
-    '''
-    def __init__(self, stage, description, info):
-        self.stage = stage
-        self.type = description
-        if self.type == "Kernel":
-            self.bias = 0
-            self.weight = random_3x3_matrix(47) #generates a random weight, based on HE initialization calculated by AI
-            self.info = kernel(info)
-        elif self.type == "Output":
-            self.bias = 0
-            self.info = info #The input size of the neuron, will be the length of the flattened hidden layer
-            self.weight = [round(random.uniform(-1, 1),2) for _ in range(info)]
-    def operate(self, input_image):
-        '''
-        Convolves the input image with the kernel selected at the object instantiation, then applies relu on it.
-        '''
-        if self.type == "Kernel":
-            self.feature_map = convolve(input_image, self.weight, self.bias, self.info)
-        elif self.type == "Output":
-            self.activation = weighted_sum_flat(input_image, self.weight) + self.bias
-    def activate(self, function):
-        if function == "relu":
-            self.feature_map_activated = relu(self.feature_map)
-        elif function == "sigmoid":
-            self.activated = sigmoid(self.activation)
+    def __init__(self, weight, bias):
+        self.weight = weight
+        self.bias = bias
+        
 
         
         
-def random_3x3_matrix(max_min):
-    '''
-    Initially used, created issues with empty matrices
-    '''
-    matrix = []
-    for _ in range(3):
-        row = []
-        for _ in range(3):
-            row.append(random.randrange(-max_min, max_min+1) / 100)  # Corrected range
-        matrix.append(row)
-    return matrix
-
-
-
-def kernel(variety):
-    kernel = [[0 for _ in range(3)] for _ in range(3)]
-
-    if variety == "Prewitt Horizontal":
-        kernel = [[-1,0,1],
-                  [-1,0,1],
-                  [-1,0,1]]
-    elif variety == "Prewitt Vertical":
-        kernel = [[1,1,1],
-                  [0,0,0],
-                  [-1,-1,-1]]
-    elif variety == "Sobel Horizontal":
-        kernel = [[-1,0,1],
-                  [-2,0,2],
-                  [-1,0,1]]
-    elif variety == "Sobel Vertical":
-        kernel = [[1,2,1],
-                  [0,0,0],
-                  [-1,-2,-1]]
-    elif variety == "Laplacian":
-        kernel = [[-1,-1,-1],
-                  [-1,8,-1],
-                  [-1,-1,-1]]
-    else:
-        raise ValueError('the specified filter \'' + str(variety) + 
-                    '\' does not exist')
-    return kernel
-
-def weighted_sum_flat(in_matrix, weight_matrix):
-    sum_out = 0
-    i = 0
-    while i < len(in_matrix):
-        sum_out += in_matrix[i]*weight_matrix[i]
-        i += 1
-    return sum_out
-
-def nmax(num_list):
-    #Finds the maximum value in a list
-    highest_value = 0
-    for value in num_list:
-        if value > highest_value:
-            highest_value = value
-    return highest_value
-    
-def normalize(in_matrix):
-    #Divides all of the numbers in a matrix by the highest number in the matrix
-    max_value = 0
-    for sublist in in_matrix:
-        if nmax(sublist) > max_value:
-            max_value = nmax(sublist)
-    out_matrix = [[0 for _ in range(len(in_matrix[0]))] for _ in range(len(in_matrix))]
-    i=0
-    j=0
-    while i < len(in_matrix):
-        while j < len(in_matrix):
-            if max_value != 0:
-                out_matrix[i][j] = round(in_matrix[i][j]/max_value,2)
-            else:
-                out_matrix[i][j] = 0
-            
-            j += 1
-    
-        j = 0
-        i += 1
-    return out_matrix
-
 def convolve(input_image, weight_matrix, bias, filter_matrix):
     #Convolves two matrices
     square_iterator_size = len(input_image) - (len(filter_matrix) - 1)
@@ -186,7 +76,7 @@ def max_pooling(feature_map):
         j = 0
         while j < size:
 
-            output_feature_map[i][j] = nmax([feature_map[i][j],feature_map[2*i+1][2*j],feature_map[2*i][2*j+1],feature_map[2*i+1][2*j+1]])
+            output_feature_map[i][j] = max([feature_map[i][j],feature_map[2*i+1][2*j],feature_map[2*i][2*j+1],feature_map[2*i+1][2*j+1]])
             j += 1
         i += 1
     return output_feature_map
@@ -208,82 +98,32 @@ def sigmoid(x):
 
 if __name__== "__main__":
     start_time = time.time()
-    '''
-    Initialize first layer of neurons as convolutional neurons
-    '''
+    
     #mnist_list = mnist_data_interpreter.read('mnist_train.csv')
-    
-    input_image = normalize([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 159, 253, 159, 50, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 238, 252, 252, 252, 237, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 227, 253, 252, 239, 233, 252, 57, 6, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 60, 224, 252, 253, 252, 202, 84, 252, 253, 122, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 163, 252, 252, 252, 253, 252, 252, 96, 189, 253, 167, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 238, 253, 253, 190, 114, 253, 228, 47, 79, 255, 168, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 238, 252, 252, 179, 12, 75, 121, 21, 0, 0, 253, 243, 50, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 38, 165, 253, 233, 208, 84, 0, 0, 0, 0, 0, 0, 253, 252, 165, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 7, 178, 252, 240, 71, 19, 28, 0, 0, 0, 0, 0, 0, 253, 252, 195, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 57, 252, 252, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 252, 195, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 198, 253, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 253, 196, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 76, 246, 252, 112, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 252, 148, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 230, 25, 0, 0, 0, 0, 0, 0, 0, 0, 7, 135, 253, 186, 12, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 223, 0, 0, 0, 0, 0, 0, 0, 0, 7, 131, 252, 225, 71, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 145, 0, 0, 0, 0, 0, 0, 0, 48, 165, 252, 173, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 86, 253, 225, 0, 0, 0, 0, 0, 0, 114, 238, 253, 162, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 249, 146, 48, 29, 85, 178, 225, 253, 223, 167, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 252, 252, 229, 215, 252, 252, 252, 196, 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 28, 199, 252, 252, 253, 252, 252, 233, 145, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 25, 128, 252, 253, 252, 141, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    
-    layer_1 = []
-    layer_1.append(neuron(1, "Kernel", "Prewitt Horizontal"))
-    layer_1.append(neuron(1, "Kernel", "Prewitt Vertical"))
-    layer_1.append(neuron(1, "Kernel", "Sobel Horizontal"))
-    layer_1.append(neuron(1, "Kernel", "Sobel Vertical"))
-    layer_1.append(neuron(1, "Kernel", "Laplacian"))
-    
-    
+    #input_image = normalize([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 159, 253, 159, 50, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 238, 252, 252, 252, 237, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 227, 253, 252, 239, 233, 252, 57, 6, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 60, 224, 252, 253, 252, 202, 84, 252, 253, 122, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 163, 252, 252, 252, 253, 252, 252, 96, 189, 253, 167, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 238, 253, 253, 190, 114, 253, 228, 47, 79, 255, 168, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 48, 238, 252, 252, 179, 12, 75, 121, 21, 0, 0, 253, 243, 50, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 38, 165, 253, 233, 208, 84, 0, 0, 0, 0, 0, 0, 253, 252, 165, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 7, 178, 252, 240, 71, 19, 28, 0, 0, 0, 0, 0, 0, 253, 252, 195, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 57, 252, 252, 63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 252, 195, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 198, 253, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 253, 196, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 76, 246, 252, 112, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 252, 148, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 230, 25, 0, 0, 0, 0, 0, 0, 0, 0, 7, 135, 253, 186, 12, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 223, 0, 0, 0, 0, 0, 0, 0, 0, 7, 131, 252, 225, 71, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 145, 0, 0, 0, 0, 0, 0, 0, 48, 165, 252, 173, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 86, 253, 225, 0, 0, 0, 0, 0, 0, 114, 238, 253, 162, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 249, 146, 48, 29, 85, 178, 225, 253, 223, 167, 56, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 85, 252, 252, 252, 229, 215, 252, 252, 252, 196, 130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 28, 199, 252, 252, 253, 252, 252, 233, 145, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 25, 128, 252, 253, 252, 141, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
     
     '''
-    Initialize second layer of neurons as convolutional neurons
+    Initialize trained values
     '''
+    conv_layer_1_bias = read_file('train_data\conv_layer_1_bias.txt')
+    conv_layer_1_weight = read_file('train_data\conv_layer_1_weight.txt')
     
-    layer_2 = []
-    layer_2.append(neuron(2, "Kernel", "Prewitt Horizontal"))
-    layer_2.append(neuron(2, "Kernel", "Prewitt Vertical"))
-    layer_2.append(neuron(2, "Kernel", "Sobel Horizontal"))
-    layer_2.append(neuron(2, "Kernel", "Sobel Vertical"))
-    layer_2.append(neuron(2, "Kernel", "Laplacian"))
+    dense_layer_2_bias = read_file('train_data\dense_layer_2_bias.txt')
+    dense_layer_2_weight = read_file('train_data\dense_layer_2_weight.txt')
     
+    output_layer_3_bias = read_file('train_data\output_layer_3_bias.txt')
+    output_layer_3_weight = read_file('train_data\output_layer_3_weight.txt')
+
+
     '''
-    Initialize output layer neurons
+    Initialize convolutional neurons
     '''
-    output_layer = []
-    output_layer.append(neuron(3, "Output", 14400)) #Detects 0
-    output_layer.append(neuron(3, "Output", 14400)) #Detects 1
-    
-    '''
-    First Layer: Convolution
-    '''
-    layer_1_feature_maps = []
-    x = 0
-    for n in layer_1:
-        n.operate(input_image)
-        n.activate("relu")
-        layer_1_feature_maps.append(n.feature_map_activated)
-        
-    '''
-    Second Layer: Pooling Layer (to be activated, change the flattened_output range for the output layer neurons)
-    '''
-    '''
+    convolutional_neurons = []
     i = 0
-    while i < len(layer_1):
-        layer_1[i].feature_map = max_pooling(layer_1[i].feature_map)
+    while i < 5:
+        convolutional_neurons.append(neuron(conv_layer_1_weight[9*i:9+9*i], conv_layer_1_bias[i]))
+        print(conv_layer_1_weight[9*i:9+9*i], conv_layer_1_bias[i])
         i += 1
-    '''
-    
-    '''
-    Third Layer: Convolution
-    '''
-    layer_2_feature_maps = []
-    for n in layer_1:
-        for m in layer_2:
-            m.operate(n.feature_map)
-            m.activate("relu")
-            layer_2_feature_maps.append(m.feature_map_activated)
-            x += 1
-            
-    '''
-    Fourth Layer: Fully Connected (flattening occurs here)
-    '''
-    flattened_output = flatten(layer_2_feature_maps)
-    for n in output_layer:
-        n.operate(flattened_output)
-        n.activate("sigmoid")
-        print(n.activated)
-
-
-
 
 
 
@@ -296,10 +136,12 @@ if __name__== "__main__":
     '''
     Picture Generation
     '''
+    '''
     i = 0
     while i < len(layer_2_feature_maps):        
         picture_generator.matrix_to_bw_image(normalize(layer_2_feature_maps[i]), output_file=str(i) + ".png", scale_factor=10)
         i += 1
+    '''
     
 
     
