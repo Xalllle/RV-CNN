@@ -92,10 +92,13 @@ def max_pooling(input_matrix):
 
 def normalize(in_matrix):
     #Divides all of the numbers in a matrix by the highest number in the matrix
+    '''
     max_value = 0
     for sublist in in_matrix:
         if max(sublist) > max_value:
-            max_value = max(sublist)
+            #max_value = max(sublist)
+    '''
+    max_value = 255
     out_matrix = [[0 for _ in range(len(in_matrix[0]))] for _ in range(len(in_matrix))]
     i=0
     j=0
@@ -117,20 +120,6 @@ def softmax(x):
   sum_exp_x = sum(exp_x)
   return [val / sum_exp_x for val in exp_x]
 
-def sigmoid_list(x):
-  return [1 / (1 + math.exp(-val)) for val in x]
-
-def sigmoid(x):
-    if type(x) == list:
-        result = []
-        for row in x:
-            new_row = []
-            for val in row:
-                new_row.append(round((1 / (1 + math.exp(-val))),2))
-                result.append(new_row)
-        return result
-    elif type(x) == float:
-        return round((1 / (1 + math.exp(-x))),2)
     
 def check_prediction(output, target_number):
   if output[0] > output[1]:
