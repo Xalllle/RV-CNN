@@ -91,14 +91,14 @@ def max_pooling(input_matrix):
     
 
 def normalize(in_matrix):
-    #Divides all of the numbers in a matrix by the highest number in the matrix
-    '''
+    #Divides all of the numbers in a matrix by the highest number in the matrix or 255
+
     max_value = 0
     for sublist in in_matrix:
         if max(sublist) > max_value:
-            #max_value = max(sublist)
-    '''
-    max_value = 255
+            max_value = max(sublist)
+
+    #max_value = 255
     out_matrix = [[0 for _ in range(len(in_matrix[0]))] for _ in range(len(in_matrix))]
     i=0
     j=0
@@ -147,6 +147,7 @@ if __name__== "__main__":
     
     mnist_list = mnist_data_interpreter.read('mnist_train.csv')
     
+    mnist_shortened = mnist_list[:500]
     
     start_time = time.time()
     iteration = 0
@@ -154,8 +155,9 @@ if __name__== "__main__":
     for number in mnist_list:
         target_number = number[0]
         input_image = normalize(number[1])
+        #picture_generator.matrix_to_bw_image(input_image, output_file=f'output_image_{iteration}_{target_number}.png', scale_factor=10)
         
-    
+        
         '''
         Convolutional Layer (5 kernels)
         '''
@@ -224,14 +226,14 @@ if __name__== "__main__":
         if(check_prediction(final_output, target_number) == 1):
             correct_number += 1
         iteration += 1
-        accuracy = int((correct_number/iteration)*100)
+        accuracy = round((correct_number/iteration)*100,4)
         print("Iteration: ", iteration, " Accuracy = ", accuracy, "%")
         
     
     
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print("Elapsed Time: ", elapsed_time, " Accuracy: ", accuracy)
+    print("Elapsed Time: ", elapsed_time, "seconds. Accuracy: ", accuracy, "%")
 
     
 
