@@ -26,10 +26,10 @@ test_filter = (test_labels == 0) | (test_labels == 1)
 test_images, test_labels = test_images[test_filter], test_labels[test_filter]
 
 # Subsample to reduce data size
-train_images = train_images[:1000]
-test_images = test_images[:500]
-train_labels = train_labels[:1000]
-test_labels = test_labels[:500]
+train_images = train_images[:10000]
+test_images = test_images[:5000]
+train_labels = train_labels[:10000]
+test_labels = test_labels[:5000]
 
 ############################################################ MAIN ML CODE ############################################################
 # Define the model as a function
@@ -45,3 +45,13 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 
 #Train the model
 history = model.fit(train_images, train_labels, epochs=10, batch_size=5, validation_data=(test_images, test_labels))
+
+### Compile and fit will likely need removal for RISC-V implementation, we can use pretrained weights and just add them to the RISC V model
+
+# Export weights as readable text files
+for i, layer in enumerate(model.layers):
+    weights = layer.get_weights()
+    if weights:  # Only export if the layer has weights
+        np.savetxt(f"weights_layer_{i}.txt", weights[0].flatten(), fmt="%.6f")  # Kernel weights
+        if len(weights) > 1:
+            np.savetxt(f"bias_layer_{i}.txt", weights[1].flatten(), fmt="%.6f")  # Bias weights
