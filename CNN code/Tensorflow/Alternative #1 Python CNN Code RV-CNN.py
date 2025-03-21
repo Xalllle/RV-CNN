@@ -46,3 +46,10 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 #Train the model
 history = model.fit(train_images, train_labels, epochs=10, batch_size=5, validation_data=(test_images, test_labels))
 
+# Export weights as readable text files
+for i, layer in enumerate(model.layers):
+    weights = layer.get_weights()
+    if weights:  # Only export if the layer has weights
+        np.savetxt(f"alternative_1_weights_layer_{i}.txt", weights[0].flatten(), fmt="%.6f")  # Kernel weights
+        if len(weights) > 1:
+            np.savetxt(f"alternative_1_bias_layer_{i}.txt", weights[1].flatten(), fmt="%.6f")  # Bias weights
