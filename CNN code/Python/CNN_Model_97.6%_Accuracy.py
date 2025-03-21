@@ -5,12 +5,32 @@ Created on Fri Jan 31 16:45:42 2025
 @author: Alex
 """
 
-import picture_generator
-import random
-import math
-import mnist_data_interpreter
+
 import time
-from file_loader import read_file
+import pandas as pd
+
+def read_file(filepath):
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
+        return [round(float(line.strip()),1) for line in lines]
+
+def read(file_path):
+    df = pd.read_csv(file_path)
+    mask = (df.iloc[:, 0] == 0) | (df.iloc[:, 0] == 1)
+    filtered_df = df[mask]
+
+    data_list = []
+    for _, row in filtered_df.iterrows():
+        label = int(row[0])
+        pixels = row[1:].tolist()
+
+        matrix = []
+        for i in range(0, len(pixels), 28):
+            matrix.append(pixels[i:i + 28])
+
+        data_list.append([label, matrix])
+
+    return data_list
 
 
 class neuron():
@@ -145,7 +165,7 @@ if __name__== "__main__":
     output_layer_3_bias = read_file('train_data\output_layer_3_bias.txt')
     output_layer_3_weight = read_file('train_data\output_layer_3_weight.txt')
     
-    mnist_list = mnist_data_interpreter.read('mnist_train.csv')
+    mnist_list = read('mnist_train.csv')
     
     mnist_shortened = mnist_list[:500]
     
@@ -155,7 +175,6 @@ if __name__== "__main__":
     for number in mnist_list:
         target_number = number[0]
         input_image = normalize(number[1])
-        #picture_generator.matrix_to_bw_image(input_image, output_file=f'output_image_{iteration}_{target_number}.png', scale_factor=10)
         
         
         '''
