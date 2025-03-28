@@ -4,9 +4,6 @@ Created on Fri Jan 31 16:45:42 2025
 
 @author: Alex
 """
-
-
-import time
 import pandas as pd
 
 def read_file(filepath):
@@ -21,8 +18,8 @@ def read(file_path):
 
     data_list = []
     for _, row in filtered_df.iterrows():
-        label = int(row[0])
-        pixels = row[1:].tolist()
+        label = int(row.iloc[0])
+        pixels = row.iloc[1:].tolist()
 
         matrix = []
         for i in range(0, len(pixels), 28):
@@ -31,7 +28,6 @@ def read(file_path):
         data_list.append([label, matrix])
 
     return data_list
-
 
 class neuron():
     def __init__(self, weight, bias):
@@ -58,7 +54,6 @@ def convolve(input_image, weight_matrix, bias):
                 for n in range(size_b):
                     feature_map[i][j] += float(input_image[i + m][j + n]) * float(weight_matrix[m][n])
             feature_map[i][j] += float(bias) # Ensure bias is also a float
-
     return feature_map
 
 def relu(feature_map):
@@ -107,8 +102,7 @@ def max_pooling(input_matrix):
           if val > max_val:
             max_val = val
       output_matrix[i][j] = max_val
-  return output_matrix
-    
+  return output_matrix   
 
 def normalize(in_matrix):
     #Divides all of the numbers in a matrix by the highest number in the matrix or 255
@@ -117,8 +111,6 @@ def normalize(in_matrix):
     for sublist in in_matrix:
         if max(sublist) > max_value:
             max_value = max(sublist)
-
-    #max_value = 255
     out_matrix = [[0 for _ in range(len(in_matrix[0]))] for _ in range(len(in_matrix))]
     i=0
     j=0
@@ -140,7 +132,7 @@ def softmax(x):
   sum_exp_x = sum(exp_x)
   return [val / sum_exp_x for val in exp_x]
 
-    
+
 def check_prediction(output, target_number):
   if output[0] > output[1]:
     predicted_number = 0
@@ -156,20 +148,19 @@ if __name__== "__main__":
     '''
     Initialize trained values
     '''
-    conv_layer_1_bias = read_file('train_data\conv_layer_1_bias.txt')
-    conv_layer_1_weight = read_file('train_data\conv_layer_1_weight.txt')
+    conv_layer_1_bias = read_file('train_data\\conv_layer_1_bias.txt')
+    conv_layer_1_weight = read_file('train_data\\conv_layer_1_weight.txt')
     
-    dense_layer_2_bias = read_file('train_data\dense_layer_2_bias.txt')
-    dense_layer_2_weight = read_file('train_data\dense_layer_2_weight.txt')
+    dense_layer_2_bias = read_file('train_data\\dense_layer_2_bias.txt')
+    dense_layer_2_weight = read_file('train_data\\dense_layer_2_weight.txt')
     
-    output_layer_3_bias = read_file('train_data\output_layer_3_bias.txt')
-    output_layer_3_weight = read_file('train_data\output_layer_3_weight.txt')
+    output_layer_3_bias = read_file('train_data\\output_layer_3_bias.txt')
+    output_layer_3_weight = read_file('train_data\\output_layer_3_weight.txt')
     
     mnist_list = read('mnist_train.csv')
     
     mnist_shortened = mnist_list[:500]
     
-    start_time = time.time()
     iteration = 0
     correct_number = 0
     for number in mnist_list:
@@ -248,11 +239,7 @@ if __name__== "__main__":
         accuracy = round((correct_number/iteration)*100,4)
         print("Iteration: ", iteration, " Accuracy = ", accuracy, "%")
         
-    
-    
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print("Elapsed Time: ", elapsed_time, "seconds. Accuracy: ", accuracy, "%")
+    print("Accuracy: ", accuracy, "%")
 
     
 
