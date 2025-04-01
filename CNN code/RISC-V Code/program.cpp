@@ -223,7 +223,7 @@ int main() {
     double accuracy = 0.0;
 
     for (const auto& number_data : mnist_list) {
-         if (iteration >= 10000) break;
+         if (iteration >= 12665) break;
 
         int target_number = number_data.first;
         Matrix input_image = normalize(number_data.second);

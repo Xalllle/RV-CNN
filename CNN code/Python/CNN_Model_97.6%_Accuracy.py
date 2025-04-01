@@ -159,7 +159,7 @@ if __name__== "__main__":
     
     mnist_list = read('mnist_train.csv')
     
-    mnist_shortened = mnist_list[:500]
+    mnist_shortened = mnist_list[:1000]
     
     iteration = 0
     correct_number = 0
