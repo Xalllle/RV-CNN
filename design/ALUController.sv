@@ -1,26 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 01/07/2018 10:10:33 PM
-// Design Name: 
-// Module Name: ALUController
-// Project Name: 112L_Single_Path
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-//
-// Revision: 0.04 - Re-Write, see note "ALU-Operation"
-// Revision: 0.03 - Add Support for JAL and JALR 
-// Revision: 0.02 - Add Support for B type inst, no debug made, see note
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module ALUController(
     

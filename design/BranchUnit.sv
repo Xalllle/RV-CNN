@@ -1,27 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 03/16/2018 10:21:50 PM
-// Design Name: 
-// Module Name: Branch Unit
-// Project Name: 112L_PipeLine
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision: 0.05 - Fix Jalr Select Bug
-// Revision: 0.04 - Fix Flush logic
-// Revision: 0.03 - Fix Width Bug
-// Revision: 0.02 - Fix PcSel Bug
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module BranchUnit
     #(parameter PC_W = 9)

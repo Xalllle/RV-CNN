@@ -1,29 +1,3 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 01/07/2018 10:23:43 PM
-// Design Name: 
-// Module Name: alu
-// Project Name: 112L_Single_Path
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-//
-// Revision: 0.07 - A better Shift Expression
-// Revision: 0.06 - Re-write Output Zero to be the 0 digits of AluResult
-// Revision: 0.05 - Add Support for >>>, modify comparation
-// Revision: 0.04 - Add More Operations
-// Revision: 0.03 - Add support for Jump
-// Revision: 0.02 - Add support for Branch, no debug made, see note 2/23 03:31
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module alu#(
         parameter DATA_WIDTH = 32,

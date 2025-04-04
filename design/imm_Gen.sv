@@ -1,30 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 01/07/2018 10:22:44 PM
-// Design Name: 
-// Module Name: imm_Gen
-// Project Name: 112L_Single_Path
-// Target Devices: 
-// Tool Versions: 
-// Description: imm_Gen with shifter if necessary that generate 32 bits output signal
-// 
-// Dependencies: 
-// 
-// Revision: 0.09 - Fix SRAI judgment
-// Revision: 0.08 - Fix JALR
-// Revision: 0.07 - Fix SRAI, special case
-// Revision: 0.06 - Fix JAL, wrong copy/paste before
-// Revision: 0.05 - Add Support for JALR
-// Revision: 0.04 - Add Build-in Shifter for B-type and JAL
-// Revision: 0.03 - Add Support for U type
-// Revision: 0.02 - Add Support for B/J type, no debug made
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
 module imm_Gen(

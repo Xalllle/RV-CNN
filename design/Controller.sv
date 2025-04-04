@@ -1,26 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 01/07/2018 10:10:33 PM
-// Design Name: 
-// Module Name: Controller
-// Project Name: 112L_Single_Path
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision: 0.05 - Fix BR/ALUOp BUG
-// Revision: 0.04 - Modify Support for JAL, JALR, LUI, AUIPC
-// Revision: 0.03 - add support for JAL and JALR
-// Revision: 0.02 - add support for B type
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 module Controller(
     

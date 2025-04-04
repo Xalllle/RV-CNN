@@ -1,37 +1,6 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: Yifan Xu
-// 
-// Create Date: 03/19/2018 10:10:33 PM
-// Design Name: 
-// Module Name: Datapath
-// Project Name: 112L_PipeLine
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-//
-// Revision: 0.14 - Fix Hazard Detection
-// Revision: 0.13 - Fix a Forwarding Unit Bug
-// Revision: 0.12 - ReWrite Branch Unit Logic (Give Flush Signal immediately)
-// Revision: 0.11 - Fix Flush logic (caused by branch)
-// Revision: 0.10 - Add Hazard Detection
-// Revision: 0.09 - Fix a bug that cause Controller delay one stage
-// Revision: 0.08 - Add Forwarding Unit
-// Revision: 0.07 - Fix resmux(input port)
-// Revision: 0.06 - Add Initialization
-// Revision: 0.06 - Fix Port Name/Size
-// Revision: 0.05 - Switch to PipeLine Model, no debug made
-// Revision: 0.04 - Reset WB_DATA Signal
-// Revision: 0.03 - Re-write PC+Imm
-// Revision: 0.02 - modify datamemory
-// Revision: 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-`include "RegPack.sv"
+
+
 import Pipe_Buf_Reg_PKG::*;
 
 module Datapath #(
