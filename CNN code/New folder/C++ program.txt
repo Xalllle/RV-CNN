@@ -1,0 +1,110 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+using namespace std;
+
+// Sigmoid activation and its derivative
+double sigmoid(double x) {
+    return 1.0 / (1.0 + exp(-x));
+}
+
+double sigmoid_derivative(double x) {
+    double s = sigmoid(x);
+    return s * (1 - s);
+}
+
+// Structure to store weights and biases
+struct NeuralNetwork {
+    // Weights
+    double w1, w2, w3, w4; // input to hidden
+    double w5, w6;         // hidden to output
+
+    // Biases
+    double b1, b2;         // hidden
+    double b3;             // output
+
+    // Constructor (initialize with small random weights)
+    NeuralNetwork() {
+        w1 = 0.5; w2 = -0.2;
+        w3 = 0.3; w4 = 0.8;
+        w5 = -0.5; w6 = 0.7;
+        b1 = 0.0; b2 = 0.0; b3 = 0.0;
+    }
+
+    // Train the network using one training sample
+    void train(double x1, double x2, double target, double lr = 0.1) {
+        // ==== FORWARD PASS ====
+        double z1 = x1 * w1 + x2 * w2 + b1;
+        double a1 = sigmoid(z1);
+
+        double z2 = x1 * w3 + x2 * w4 + b2;
+        double a2 = sigmoid(z2);
+
+        double z3 = a1 * w5 + a2 * w6 + b3;
+        double a3 = sigmoid(z3); // final output
+
+        // ==== LOSS ====
+        double loss = 0.5 * pow((a3 - target), 2);
+        cout << "Loss: " << loss << endl;
+
+        // ==== BACKWARD PASS (chain rule) ====
+        double d_loss_a3 = a3 - target;
+        double d_a3_z3 = sigmoid_derivative(z3);
+
+        double d_z3_w5 = a1;
+        double d_z3_w6 = a2;
+        double d_z3_b3 = 1;
+
+        // Gradients for output layer
+        double d_w5 = d_loss_a3 * d_a3_z3 * d_z3_w5;
+        double d_w6 = d_loss_a3 * d_a3_z3 * d_z3_w6;
+        double d_b3 = d_loss_a3 * d_a3_z3;
+
+        // Backpropagate to hidden layer
+        double d_z3_a1 = w5;
+        double d_z3_a2 = w6;
+
+        double d_a1_z1 = sigmoid_derivative(z1);
+        double d_a2_z2 = sigmoid_derivative(z2);
+
+        double d_w1 = d_loss_a3 * d_a3_z3 * d_z3_a1 * d_a1_z1 * x1;
+        double d_w2 = d_loss_a3 * d_a3_z3 * d_z3_a1 * d_a1_z1 * x2;
+        double d_w3 = d_loss_a3 * d_a3_z3 * d_z3_a2 * d_a2_z2 * x1;
+        double d_w4 = d_loss_a3 * d_a3_z3 * d_z3_a2 * d_a2_z2 * x2;
+
+        double d_b1 = d_loss_a3 * d_a3_z3 * d_z3_a1 * d_a1_z1;
+        double d_b2 = d_loss_a3 * d_a3_z3 * d_z3_a2 * d_a2_z2;
+
+        // ==== UPDATE WEIGHTS ====
+        w1 -= lr * d_w1;
+        w2 -= lr * d_w2;
+        w3 -= lr * d_w3;
+        w4 -= lr * d_w4;
+        w5 -= lr * d_w5;
+        w6 -= lr * d_w6;
+
+        b1 -= lr * d_b1;
+        b2 -= lr * d_b2;
+        b3 -= lr * d_b3;
+    }
+};
+
+int main() {
+    NeuralNetwork nn;
+
+    // Simple training data: XOR-like input
+    double input1 = 1.0;
+    double input2 = 0.0;
+    double target = 1.0;
+
+    for (int epoch = 0; epoch < 1000; ++epoch) {
+        cout << "Epoch " << epoch << ": ";
+        nn.train(input1, input2, target);
+    }
+
+    return 0;
+}
+
+g++ simple_nn.cpp -o simple_nn
+./simple_nn
