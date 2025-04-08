@@ -1,0 +1,141 @@
+module simple_nn_pipeline #(parameter WIDTH = 16)(
+    input logic clk,
+    input logic rst,
+    input logic signed [WIDTH-1:0] in1, in2, target
+);
+    // =======================
+    // Stage 0: Weights & Bias
+    // =======================
+    logic signed [WIDTH-1:0] w1, w2, w3, w4, w5, w6;
+    logic signed [WIDTH-1:0] b1, b2, b3;
+
+    initial begin
+        w1 = 10; w2 = -10; w3 = 5; w4 = 10; w5 = -5; w6 = 5;
+        b1 = 0; b2 = 0; b3 = 0;
+    end
+
+    localparam logic signed [WIDTH-1:0] LR = 1;
+
+    // =======================
+    // Stage 1: Input capture
+    // =======================
+    logic signed [WIDTH-1:0] s1_in1, s1_in2, s1_target;
+    always_ff @(posedge clk) begin
+        s1_in1 <= in1;
+        s1_in2 <= in2;
+        s1_target <= target;
+    end
+
+    // =======================
+    // Stage 2: Hidden layer
+    // =======================
+    logic signed [WIDTH-1:0] s2_h1_out, s2_h2_out;
+    logic signed [WIDTH-1:0] s2_in1, s2_in2, s2_target;
+
+    always_ff @(posedge clk) begin
+        s2_in1 <= s1_in1;
+        s2_in2 <= s1_in2;
+        s2_target <= s1_target;
+
+        s2_h1_out <= sigmoid((s1_in1 * w1 >>> 6) + (s1_in2 * w2 >>> 6) + b1);
+        s2_h2_out <= sigmoid((s1_in1 * w3 >>> 6) + (s1_in2 * w4 >>> 6) + b2);
+    end
+
+    // =======================
+    // Stage 3: Output layer
+    // =======================
+    logic signed [WIDTH-1:0] s3_out;
+    logic signed [WIDTH-1:0] s3_h1_out, s3_h2_out, s3_target;
+
+    always_ff @(posedge clk) begin
+        s3_h1_out <= s2_h1_out;
+        s3_h2_out <= s2_h2_out;
+        s3_target <= s2_target;
+
+        s3_out <= sigmoid((s2_h1_out * w5 >>> 6) + (s2_h2_out * w6 >>> 6) + b3);
+    end
+
+    // =======================
+    // Stage 4: Error compute
+    // =======================
+    logic signed [WIDTH-1:0] s4_err;
+    logic signed [WIDTH-1:0] s4_h1_out, s4_h2_out;
+
+    always_ff @(posedge clk) begin
+        s4_err <= s3_out - s3_target;
+        s4_h1_out <= s3_h1_out;
+        s4_h2_out <= s3_h2_out;
+    end
+
+    // =======================
+    // Stage 5: Backpropagate
+    // =======================
+    logic signed [WIDTH-1:0] s5_err, s5_grad_w5, s5_grad_w6;
+
+    always_ff @(posedge clk) begin
+        s5_err <= s4_err;
+        s5_grad_w5 <= (s4_err * s4_h1_out) >>> 6;
+        s5_grad_w6 <= (s4_err * s4_h2_out) >>> 6;
+    end
+
+    // =======================
+    // Stage 6: Update weights
+    // =======================
+    always_ff @(posedge clk) begin
+        // Output layer updates
+        w5 <= w5 - ((s5_grad_w5 * LR) >>> 6);
+        w6 <= w6 - ((s5_grad_w6 * LR) >>> 6);
+        b3 <= b3 - ((s5_err * LR) >>> 6);
+
+        // Hidden layer updates (partial backprop)
+        w1 <= w1 - ((s5_err * w5 * s1_in1) >>> 12);
+        w2 <= w2 - ((s5_err * w5 * s1_in2) >>> 12);
+        w3 <= w3 - ((s5_err * w6 * s1_in1) >>> 12);
+        w4 <= w4 - ((s5_err * w6 * s1_in2) >>> 12);
+        b1 <= b1 - ((s5_err * w5) >>> 6);
+        b2 <= b2 - ((s5_err * w6) >>> 6);
+    end
+
+    // =======================
+    // Sigmoid helper
+    // =======================
+    function automatic logic signed [WIDTH-1:0] sigmoid(input logic signed [WIDTH-1:0] x);
+        if (x < -32)      return 0;
+        else if (x > 32)  return 64;
+        else              return 32 + (x >>> 2); // Approximate sigmoid
+    endfunction
+endmodule
+
+
+// =======================
+// Testbench
+// =======================
+module tb_pipeline;
+    logic clk = 0, rst;
+    logic signed [15:0] in1, in2, target;
+
+    simple_nn_pipeline dut(.clk(clk), .rst(rst), .in1(in1), .in2(in2), .target(target));
+
+    always #5 clk = ~clk;
+
+    initial begin
+        rst = 1; #10;
+        rst = 0;
+
+        // Input sample 1: Expect high output
+        in1 = 64;  // 1.0
+        in2 = 0;   // 0.0
+        target = 64; // 1.0
+
+        #100;
+
+        // Input sample 2: Expect low output
+        in1 = 0;
+        in2 = 64;
+        target = 0;
+
+        #100;
+
+        $finish;
+    end
+endmodule
